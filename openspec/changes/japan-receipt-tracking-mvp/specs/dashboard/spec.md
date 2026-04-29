@@ -2,30 +2,31 @@
 
 ### Requirement: Spending Overview Cards
 
-The dashboard SHALL display summary cards scoped to the currently active travel, showing:
-- Total spending for the active travel in JPY (formatted as ¥X,XXX)
-- Total spending for the active travel in TWD (formatted as NT$X,XXX)
-- Total number of receipts in the active travel
-- Today's JPY to TWD exchange rate
-
-#### Scenario: Dashboard loads with active travel data
-
-- **WHEN** an authenticated user navigates to the dashboard
-- **THEN** the system SHALL display spending totals and receipt count for the currently active travel only
+The dashboard SHALL display summary cards scoped to the currently active travel, showing total JPY, total TWD, receipt count, and today's exchange rate.
 
 #### Scenario: No receipts in active travel
 
 - **WHEN** the active travel has no receipts
-- **THEN** the system SHALL display ¥0 / NT$0 / 0 receipts with an empty state message
+- **THEN** the system SHALL display ¥0 / NT$0 / 0 receipts
+
+### Requirement: Dashboard Empty State
+
+When the active travel has zero receipts, the dashboard SHALL display only a centered empty state instead of the full chart layout.
+
+#### Scenario: Empty state shown when no receipts exist
+
+- **WHEN** the authenticated user's active travel has no receipts
+- **THEN** the dashboard SHALL display: the text "還沒有收據", a subtitle "拍攝第一張收據開始記帳吧！", and a single large "+ 新增收據" button that opens the receipt capture dialog
+- **THEN** the spending overview cards, daily chart, category chart, tax type summary, and recent receipts list SHALL NOT be rendered
+
+#### Scenario: Full dashboard shown once receipts exist
+
+- **WHEN** the active travel has at least one receipt
+- **THEN** the dashboard SHALL render the full chart layout (SpendingOverview, DailyChart, CategoryChart, TaxTypeSummary, RecentReceipts)
 
 ### Requirement: Daily Spending Trend Chart
 
-The dashboard SHALL display a bar chart showing daily spending in JPY for each day that has receipts in the active travel. Days with no spending SHALL show a bar of height 0.
-
-#### Scenario: Daily chart renders correctly
-
-- **WHEN** the user has receipts on multiple days in the active travel
-- **THEN** the system SHALL render a bar for each calendar day within the active travel's date span, with bar height proportional to total JPY spending that day
+The dashboard SHALL display a bar chart showing daily spending in JPY for each day that has receipts in the active travel.
 
 ##### Example: daily chart data
 
@@ -35,41 +36,26 @@ The dashboard SHALL display a bar chart showing daily spending in JPY for each d
 
 ### Requirement: Category Breakdown Donut Chart
 
-The dashboard SHALL display a donut chart showing the percentage breakdown of total JPY spending by category. Categories: `food` (食事), `shopping` (購物), `transport` (交通), `accommodation` (住宿), `sightseeing` (觀光), `other` (其他).
-
-#### Scenario: Category chart shows proportional breakdown
-
-- **WHEN** the user has receipts across multiple categories
-- **THEN** each category segment SHALL be proportional to its share of total spending, with a legend showing category name and JPY total
+The dashboard SHALL display a donut chart showing the percentage breakdown of total JPY spending by category.
 
 ### Requirement: Tax Type Summary
 
-The dashboard SHALL display a summary panel showing the breakdown of total spending by tax type: `standard_10` (10% 標準稅率), `reduced_8` (8% 軽減稅率), `tax_free` (免稅), `unknown`.
-
-#### Scenario: Tax summary displays totals
-
-- **WHEN** the user has receipts with different tax types
-- **THEN** the system SHALL display the total JPY amount for each tax type present
+The dashboard SHALL display a summary panel showing the breakdown of total spending by tax type.
 
 ### Requirement: Recent Receipts List on Dashboard
 
-The dashboard SHALL display the 5 most recent receipts, showing store name (Traditional Chinese), total JPY amount, category, and date for each.
+The dashboard SHALL display the 5 most recent receipts.
 
 #### Scenario: Recent receipts shown
 
 - **WHEN** the user has at least one receipt
-- **THEN** the system SHALL display up to 5 receipts ordered by date descending, each linking to the receipt list page
-
-#### Scenario: Empty state
-
-- **WHEN** the user has no receipts
-- **THEN** the system SHALL display an empty state with a call-to-action button linking to the receipt capture page
+- **THEN** the system SHALL display up to 5 receipts ordered by date descending
 
 ### Requirement: Trip-Scoped Dashboard
 
-All dashboard data (overview cards, charts, tax summary, recent receipts) SHALL be scoped to the currently active travel. Switching the active travel via the TravelSwitcher SHALL reload all dashboard data for the newly active travel.
+All dashboard data SHALL be scoped to the currently active travel. Switching the active travel via the TravelSwitcher SHALL reload all dashboard data for the newly active travel.
 
 #### Scenario: User switches travel from dashboard
 
-- **WHEN** the user selects a different travel from the TravelSwitcher in the navigation bar
+- **WHEN** the user selects a different travel from the TravelSwitcher
 - **THEN** all dashboard statistics and charts SHALL update to reflect only the receipts belonging to the newly active travel
