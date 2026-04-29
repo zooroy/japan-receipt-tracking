@@ -8,7 +8,11 @@ import { Loader2 } from "lucide-react";
 
 type State = "idle" | "analyzing" | "confirm";
 
-export function NewReceiptClient() {
+interface NewReceiptClientProps {
+  onSuccess?: () => void;
+}
+
+export function NewReceiptClient({ onSuccess }: NewReceiptClientProps = {}) {
   const [state, setState] = useState<State>("idle");
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
   const [error, setError] = useState("");
@@ -46,6 +50,7 @@ export function NewReceiptClient() {
       <ReceiptConfirm
         data={receiptData}
         onCancel={() => { setState("idle"); setReceiptData(null); }}
+        onSuccess={onSuccess}
       />
     );
   }

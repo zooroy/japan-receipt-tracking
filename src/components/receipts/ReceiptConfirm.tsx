@@ -49,9 +49,10 @@ const CATEGORY_LABELS = {
 interface ReceiptConfirmProps {
   data: ReceiptData;
   onCancel: () => void;
+  onSuccess?: () => void;
 }
 
-export function ReceiptConfirm({ data, onCancel }: ReceiptConfirmProps) {
+export function ReceiptConfirm({ data, onCancel, onSuccess }: ReceiptConfirmProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -76,8 +77,12 @@ export function ReceiptConfirm({ data, onCancel }: ReceiptConfirmProps) {
     });
 
     if (res.ok) {
-      router.push("/receipts");
-      router.refresh();
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push("/receipts");
+        router.refresh();
+      }
     } else {
       setLoading(false);
     }

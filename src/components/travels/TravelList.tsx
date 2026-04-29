@@ -3,12 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { MapPin, Plus, Check } from "lucide-react";
+import { MapPin, Plus, Check, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { CreateTravelDialog } from "./CreateTravelDialog";
-
 import type { Travel } from "@/lib/types";
 
 interface TravelListProps {
@@ -21,16 +27,40 @@ export function TravelList({ travels, activeTravel, autoOpenCreate }: TravelList
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(autoOpenCreate ?? false);
   const [switching, setSwitching] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Travel | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     if (autoOpenCreate) setDialogOpen(true);
   }, [autoOpenCreate]);
 
-  async function handleSwitch(id: string) {
+  async function handleSwitch(id: string, redirect = false) {
     setSwitching(id);
     await fetch(`/api/travels/${id}/activate`, { method: "POST" });
-    router.refresh();
+    if (redirect) {
+      router.push("/");
+    } else {
+      router.refresh();
+    }
     setSwitching(null);
+  }
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError("");
+
+    const res = await fetch(`/api/travels/${deleteTarget.id}`, { method: "DELETE" });
+
+    if (res.ok) {
+      setDeleteTarget(null);
+      router.refresh();
+    } else {
+      const data = await res.json();
+      setDeleteError(data.error ?? "刪除失敗");
+    }
+    setDeleting(false);
   }
 
   return (
@@ -56,10 +86,11 @@ export function TravelList({ travels, activeTravel, autoOpenCreate }: TravelList
             return (
               <Card
                 key={travel.id}
-                className={isActive ? "border-primary/50 bg-primary/5" : ""}
+                className={`cursor-pointer transition-colors hover:bg-muted/50 ${isActive ? "border-primary/50 bg-primary/5" : ""}`}
+                onClick={() => isActive ? router.push("/") : handleSwitch(travel.id, true)}
               >
                 <CardContent className="p-4 flex items-center justify-between gap-3">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium truncate">{travel.name}</span>
                       {isActive && (
@@ -80,18 +111,18 @@ export function TravelList({ travels, activeTravel, autoOpenCreate }: TravelList
                       </p>
                     )}
                   </div>
-                  {!isActive && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleSwitch(travel.id)}
-                      disabled={switching === travel.id}
-                      className="shrink-0"
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      切換
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {!isActive && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(travel); }}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             );
@@ -104,6 +135,28 @@ export function TravelList({ travels, activeTravel, autoOpenCreate }: TravelList
         onOpenChange={setDialogOpen}
         onSuccess={() => router.refresh()}
       />
+
+      {/* 刪除確認 Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setDeleteError(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>刪除旅程</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            確定要刪除「<span className="font-medium text-foreground">{deleteTarget?.name}</span>」嗎？
+          </p>
+          <p className="text-sm text-destructive">此旅程的所有收據也會一併刪除，無法復原。</p>
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setDeleteTarget(null); setDeleteError(""); }} disabled={deleting}>
+              取消
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+              {deleting ? "刪除中..." : "確定刪除"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

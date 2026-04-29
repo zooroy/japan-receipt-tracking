@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { TravelSwitcher } from "@/components/travels/TravelSwitcher";
 import { NewReceiptClient } from "@/components/receipts/NewReceiptClient";
@@ -27,6 +29,12 @@ export default async function NewReceiptPage() {
         }
       />
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
+        <div className="flex items-center gap-2 mb-6">
+          <Link href="/" className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors text-sm">
+            <ChevronLeft className="h-4 w-4" />
+            返回
+          </Link>
+        </div>
         <h1 className="text-xl font-semibold mb-6">新增收據</h1>
         <NewReceiptClient />
       </main>

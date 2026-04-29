@@ -7,6 +7,7 @@ import { DailyChart } from "@/components/dashboard/DailyChart";
 import { CategoryChart } from "@/components/dashboard/CategoryChart";
 import { TaxTypeSummary } from "@/components/dashboard/TaxTypeSummary";
 import { RecentReceipts } from "@/components/dashboard/RecentReceipts";
+import { NewReceiptButton } from "@/components/receipts/NewReceiptButton";
 import type { Travel } from "@/lib/types";
 
 export default async function DashboardPage() {
@@ -23,6 +24,10 @@ export default async function DashboardPage() {
     redirect("/travels?new=true");
   }
 
+  const receiptCount = await prisma.receipt.count({
+    where: { travel_id: activeTravel.id },
+  });
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar
@@ -30,14 +35,24 @@ export default async function DashboardPage() {
           <TravelSwitcher travels={travels} activeTravel={activeTravel} />
         }
       />
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 space-y-4">
-        <SpendingOverview travelId={activeTravel.id} />
-        <DailyChart travelId={activeTravel.id} />
-        <div className="grid grid-cols-2 gap-4">
-          <CategoryChart travelId={activeTravel.id} />
-          <TaxTypeSummary travelId={activeTravel.id} />
-        </div>
-        <RecentReceipts travelId={activeTravel.id} />
+      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
+        {receiptCount === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full min-h-[60vh] gap-4 text-muted-foreground">
+            <p className="text-lg font-medium text-foreground">還沒有收據</p>
+            <p className="text-sm">拍攝第一張收據開始記帳吧！</p>
+            <NewReceiptButton size="lg" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <SpendingOverview travelId={activeTravel.id} />
+            <DailyChart travelId={activeTravel.id} />
+            <div className="grid grid-cols-2 gap-4">
+              <CategoryChart travelId={activeTravel.id} />
+              <TaxTypeSummary travelId={activeTravel.id} />
+            </div>
+            <RecentReceipts travelId={activeTravel.id} />
+          </div>
+        )}
       </main>
     </div>
   );
