@@ -49,6 +49,7 @@ model Receipt {
   category          Category
   items             Json     @default("[]")
   notes             String?
+  image_hash        String?  @unique
   created_at        DateTime @default(now()) @db.Timestamptz()
 
   travel Travel @relation(fields: [travel_id], references: [id])

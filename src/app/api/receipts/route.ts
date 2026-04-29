@@ -14,6 +14,7 @@ const receiptSchema = z.object({
     z.object({ name: z.string(), name_zh: z.string(), price: z.number().int() })
   ),
   notes: z.string().optional().nullable(),
+  image_hash: z.string().optional().nullable(),
 });
 
 export async function GET() {
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   const rate = await getTodayRate();
-  const { date, store_name, store_name_zh, total_amount, tax_type, category, items, notes } = parsed.data;
+  const { date, store_name, store_name_zh, total_amount, tax_type, category, items, notes, image_hash } = parsed.data;
 
   const receipt = await prisma.receipt.create({
     data: {
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
       category,
       items,
       notes: notes ?? null,
+      image_hash: image_hash ?? null,
     },
   });
 

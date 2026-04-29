@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,6 +55,7 @@ interface ReceiptConfirmProps {
 
 export function ReceiptConfirm({ data, onCancel, onSuccess }: ReceiptConfirmProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, setValue, watch } = useForm<FormValues>({
@@ -73,10 +75,11 @@ export function ReceiptConfirm({ data, onCancel, onSuccess }: ReceiptConfirmProp
     const res = await fetch("/api/receipts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...values, items: data.items }),
+      body: JSON.stringify({ ...values, items: data.items, image_hash: data.image_hash }),
     });
 
     if (res.ok) {
+      await queryClient.invalidateQueries({ queryKey: ["receipts"] });
       if (onSuccess) {
         onSuccess();
       } else {

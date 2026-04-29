@@ -10,15 +10,21 @@ type State = "idle" | "analyzing" | "confirm";
 
 interface NewReceiptClientProps {
   onSuccess?: () => void;
+  onStateChange?: (state: State) => void;
 }
 
-export function NewReceiptClient({ onSuccess }: NewReceiptClientProps = {}) {
+export function NewReceiptClient({ onSuccess, onStateChange }: NewReceiptClientProps = {}) {
   const [state, setState] = useState<State>("idle");
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
   const [error, setError] = useState("");
 
+  function setStateWithNotify(next: State) {
+    setState(next);
+    onStateChange?.(next);
+  }
+
   async function handleImageSelected(file: File) {
-    setState("analyzing");
+    setStateWithNotify("analyzing");
     setError("");
 
     const formData = new FormData();
@@ -29,10 +35,15 @@ export function NewReceiptClient({ onSuccess }: NewReceiptClientProps = {}) {
     if (res.ok) {
       const data = await res.json();
       setReceiptData(data);
-      setState("confirm");
+      setStateWithNotify("confirm");
+    } else if (res.status === 409) {
+      const { store_name_zh, date, travel_name } = await res.json();
+      const dateStr = new Date(date).toLocaleDateString("zh-TW");
+      setError(`此收據已重複：${store_name_zh}（${dateStr}）收錄於「${travel_name}」`);
+      setStateWithNotify("idle");
     } else {
       setError("無法解析收據，請重試或手動輸入");
-      setState("idle");
+      setStateWithNotify("idle");
     }
   }
 
@@ -49,7 +60,7 @@ export function NewReceiptClient({ onSuccess }: NewReceiptClientProps = {}) {
     return (
       <ReceiptConfirm
         data={receiptData}
-        onCancel={() => { setState("idle"); setReceiptData(null); }}
+        onCancel={() => { setStateWithNotify("idle"); setReceiptData(null); }}
         onSuccess={onSuccess}
       />
     );

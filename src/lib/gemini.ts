@@ -45,6 +45,7 @@ export interface ReceiptData {
   tax_type: "reduced_8" | "standard_10" | "tax_free" | "unknown";
   category: "food" | "shopping" | "transport" | "accommodation" | "sightseeing" | "other";
   items: { name: string; name_zh: string; price: number }[];
+  image_hash?: string;
 }
 
 export async function analyzeReceipt(base64Image: string, mimeType: string): Promise<ReceiptData> {
