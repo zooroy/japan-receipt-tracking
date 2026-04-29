@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TaxType {
+  reduced_8
+  standard_10
+  tax_free
+  unknown
+}
+
+enum Category {
+  food
+  shopping
+  transport
+  accommodation
+  sightseeing
+  other
+}
+
+model Travel {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  start_date DateTime? @db.Date
+  end_date   DateTime? @db.Date
+  is_active  Boolean   @default(false)
+  created_at DateTime  @default(now()) @db.Timestamptz()
+
+  receipts Receipt[]
+
+  @@map("travels")
+}
+
+model Receipt {
+  id                String   @id @default(uuid()) @db.Uuid
+  travel_id         String   @db.Uuid
+  date              DateTime @db.Date
+  store_name        String
+  store_name_zh     String
+  total_amount      Int
+  total_amount_twd  Int
+  exchange_rate     Decimal  @db.Decimal(10, 4)
+  tax_type          TaxType
+  category          Category
+  items             Json     @default("[]")
+  notes             String?
+  created_at        DateTime @default(now()) @db.Timestamptz()
+
+  travel Travel @relation(fields: [travel_id], references: [id])
+
+  @@map("receipts")
+}
+
+model ExchangeRateCache {
+  date       DateTime @id @db.Date
+  rate       Decimal  @db.Decimal(10, 4)
+  fetched_at DateTime @db.Timestamptz()
+
+  @@map("exchange_rate_cache")
+}
