@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, MapPin, Plus } from "lucide-react";
+import { ChevronDown, MapPin, Plus, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -77,6 +77,10 @@ export function TravelSwitcher({ travels, activeTravel }: TravelSwitcherProps) {
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             建立新旅程
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/travels")}>
+            <Settings className="h-4 w-4 mr-2" />
+            旅程管理
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

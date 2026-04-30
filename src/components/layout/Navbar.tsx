@@ -4,14 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LogOut, MapPin } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { NewReceiptDialog } from "@/components/receipts/NewReceiptDialog";
 
 interface NavbarProps {
   travelSwitcher?: React.ReactNode;
+  minimal?: boolean;
 }
 
-export function Navbar({ travelSwitcher }: NavbarProps) {
+export function Navbar({ travelSwitcher, minimal }: NavbarProps) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -28,15 +29,12 @@ export function Navbar({ travelSwitcher }: NavbarProps) {
           <Link href="/" className="font-semibold text-sm">
             🇯🇵 記帳
           </Link>
-          <Link href="/travels">
-            <Button variant="ghost" size="icon" title="旅程管理">
-              <MapPin className="h-4 w-4" />
-            </Button>
-          </Link>
         </div>
-        <div className="flex-1 min-w-0">{travelSwitcher}</div>
+        {!minimal && <div className="flex-1 min-w-0">{travelSwitcher}</div>}
         <div className="flex items-center gap-2 shrink-0">
-          <Button size="sm" onClick={() => setDialogOpen(true)}>+ 新增收據</Button>
+          {!minimal && (
+            <Button size="sm" onClick={() => setDialogOpen(true)}>+ 新增收據</Button>
+          )}
           <Button variant="ghost" size="icon" onClick={handleSignOut} title="登出">
             <LogOut className="h-4 w-4" />
           </Button>

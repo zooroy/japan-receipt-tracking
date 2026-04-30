@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
-import { TravelSwitcher } from "@/components/travels/TravelSwitcher";
 import { TravelList } from "@/components/travels/TravelList";
 import type { Travel } from "@/lib/types";
 
@@ -11,21 +10,20 @@ interface TravelsPageProps {
 export default async function TravelsPage({ searchParams }: TravelsPageProps) {
   const { new: newParam } = await searchParams;
   const rawTravels = await prisma.travel.findMany({ orderBy: { created_at: "desc" } });
-  const travels: Travel[] = rawTravels.map((t) => ({
+  const mapped: Travel[] = rawTravels.map((t) => ({
     ...t,
     start_date: t.start_date?.toISOString() ?? null,
     end_date: t.end_date?.toISOString() ?? null,
     created_at: t.created_at.toISOString(),
   }));
-  const activeTravel = travels.find((t: Travel) => t.is_active) ?? null;
+  const activeTravel = mapped.find((t: Travel) => t.is_active) ?? null;
+  const travels = activeTravel
+    ? [activeTravel, ...mapped.filter((t) => !t.is_active)]
+    : mapped;
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar
-        travelSwitcher={
-          <TravelSwitcher travels={travels} activeTravel={activeTravel} />
-        }
-      />
+      <Navbar minimal />
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
         <TravelList
           travels={travels}
