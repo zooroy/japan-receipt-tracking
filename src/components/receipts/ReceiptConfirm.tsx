@@ -171,7 +171,7 @@ export function ReceiptConfirm({ data, onCancel, onSuccess }: ReceiptConfirmProp
 
       <div className="flex gap-3 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-          重新拍照
+          重新選擇
         </Button>
         <Button type="submit" disabled={loading} className="flex-1">
           {loading ? "儲存中..." : "儲存收據"}
