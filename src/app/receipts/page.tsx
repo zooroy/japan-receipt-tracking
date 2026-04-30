@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getTravels } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { TravelSwitcher } from "@/components/travels/TravelSwitcher";
@@ -6,7 +7,11 @@ import { ReceiptList } from "@/components/receipts/ReceiptList";
 import type { Travel, Receipt } from "@/lib/types";
 
 export default async function ReceiptsPage() {
-  const rawTravels = await prisma.travel.findMany({ orderBy: { created_at: "desc" } });
+  const [rawTravels, rawReceipts] = await Promise.all([
+    getTravels(),
+    prisma.receipt.findMany({ where: { travel: { is_active: true } }, orderBy: { date: "desc" } }),
+  ]);
+
   const travels: Travel[] = rawTravels.map((t) => ({
     ...t,
     start_date: t.start_date?.toISOString() ?? null,
@@ -18,11 +23,6 @@ export default async function ReceiptsPage() {
   if (!activeTravel) {
     redirect("/travels?new=true");
   }
-
-  const rawReceipts = await prisma.receipt.findMany({
-    where: { travel_id: activeTravel.id },
-    orderBy: { date: "desc" },
-  });
 
   const receipts: Receipt[] = rawReceipts.map((r) => ({
     ...r,

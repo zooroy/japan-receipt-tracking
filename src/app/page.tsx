@@ -1,16 +1,20 @@
 import { prisma } from "@/lib/prisma";
+import { getTravels } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { TravelSwitcher } from "@/components/travels/TravelSwitcher";
 import { SpendingOverview } from "@/components/dashboard/SpendingOverview";
-import { DailyChart } from "@/components/dashboard/DailyChart";
-import { CategoryChart } from "@/components/dashboard/CategoryChart";
+import { DailyChart, CategoryChart } from "@/components/dashboard/LazyCharts";
 import { TaxTypeSummary } from "@/components/dashboard/TaxTypeSummary";
 import { RecentReceipts } from "@/components/dashboard/RecentReceipts";
 import type { Travel } from "@/lib/types";
 
 export default async function DashboardPage() {
-  const rawTravels = await prisma.travel.findMany({ orderBy: { created_at: "desc" } });
+  const [rawTravels, rawReceipts] = await Promise.all([
+    getTravels(),
+    prisma.receipt.findMany({ where: { travel: { is_active: true } }, orderBy: { date: "desc" } }),
+  ]);
+
   const travels: Travel[] = rawTravels.map((t) => ({
     ...t,
     start_date: t.start_date?.toISOString() ?? null,
@@ -22,25 +26,14 @@ export default async function DashboardPage() {
   if (!activeTravel) {
     redirect("/travels?new=true");
   }
-
-  const rawReceipts = await prisma.receipt.findMany({
-    where: { travel_id: activeTravel.id },
-    orderBy: { date: "desc" },
-  });
   const receipts = rawReceipts.map((r) => ({
     id: r.id,
-    travel_id: r.travel_id,
     date: r.date.toISOString(),
-    store_name: r.store_name,
     store_name_zh: r.store_name_zh,
     total_amount: r.total_amount,
     total_amount_twd: r.total_amount_twd,
-    exchange_rate: Number(r.exchange_rate),
     tax_type: r.tax_type,
     category: r.category,
-    items: r.items,
-    notes: r.notes,
-    created_at: r.created_at.toISOString(),
   }));
 
   return (

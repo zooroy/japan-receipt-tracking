@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getTravels } from "@/lib/queries";
 import { Navbar } from "@/components/layout/Navbar";
 import { TravelList } from "@/components/travels/TravelList";
 import type { Travel } from "@/lib/types";
@@ -9,7 +9,7 @@ interface TravelsPageProps {
 
 export default async function TravelsPage({ searchParams }: TravelsPageProps) {
   const { new: newParam } = await searchParams;
-  const rawTravels = await prisma.travel.findMany({ orderBy: { created_at: "desc" } });
+  const rawTravels = await getTravels();
   const mapped: Travel[] = rawTravels.map((t) => ({
     ...t,
     start_date: t.start_date?.toISOString() ?? null,
