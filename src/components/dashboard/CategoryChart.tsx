@@ -23,12 +23,14 @@ const COLORS = ["#6366f1", "#f59e0b", "#10b981", "#3b82f6", "#ec4899", "#8b5cf6"
 
 interface CategoryChartProps {
   travelId: string;
+  initialReceipts: Receipt[];
 }
 
-export function CategoryChart({ travelId }: CategoryChartProps) {
+export function CategoryChart({ travelId, initialReceipts }: CategoryChartProps) {
   const { data: receipts, isLoading } = useQuery<Receipt[]>({
     queryKey: ["receipts", travelId],
-    queryFn: () => fetch("/api/receipts").then((r) => r.json()),
+    queryFn: () => fetch(`/api/receipts?travelId=${travelId}`).then((r) => r.json()),
+    initialData: initialReceipts,
   });
 
   const chartData = (() => {

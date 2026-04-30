@@ -18,12 +18,14 @@ const TAX_TYPE_LABELS: Record<string, string> = {
 
 interface TaxTypeSummaryProps {
   travelId: string;
+  initialReceipts: Receipt[];
 }
 
-export function TaxTypeSummary({ travelId }: TaxTypeSummaryProps) {
+export function TaxTypeSummary({ travelId, initialReceipts }: TaxTypeSummaryProps) {
   const { data: receipts, isLoading } = useQuery<Receipt[]>({
     queryKey: ["receipts", travelId],
-    queryFn: () => fetch("/api/receipts").then((r) => r.json()),
+    queryFn: () => fetch(`/api/receipts?travelId=${travelId}`).then((r) => r.json()),
+    initialData: initialReceipts,
   });
 
   const byTaxType = (() => {

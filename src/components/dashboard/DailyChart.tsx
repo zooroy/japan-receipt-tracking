@@ -26,12 +26,14 @@ interface SpendingEntry {
 
 interface DailyChartProps {
   travelId: string;
+  initialReceipts: Receipt[];
 }
 
-export function DailyChart({ travelId }: DailyChartProps) {
+export function DailyChart({ travelId, initialReceipts }: DailyChartProps) {
   const { data: receipts, isLoading } = useQuery<Receipt[]>({
     queryKey: ["receipts", travelId],
-    queryFn: () => fetch("/api/receipts").then((r) => r.json()),
+    queryFn: () => fetch(`/api/receipts?travelId=${travelId}`).then((r) => r.json()),
+    initialData: initialReceipts,
   });
 
   const chartData: SpendingEntry[] = (() => {

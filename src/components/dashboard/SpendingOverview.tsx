@@ -12,12 +12,14 @@ interface ReceiptSummary {
 
 interface SpendingOverviewProps {
   travelId: string;
+  initialReceipts: ReceiptSummary[];
 }
 
-export function SpendingOverview({ travelId }: SpendingOverviewProps) {
+export function SpendingOverview({ travelId, initialReceipts }: SpendingOverviewProps) {
   const { data: receipts, isLoading: receiptsLoading } = useQuery<ReceiptSummary[]>({
     queryKey: ["receipts", travelId],
-    queryFn: () => fetch("/api/receipts").then((r) => r.json()),
+    queryFn: () => fetch(`/api/receipts?travelId=${travelId}`).then((r) => r.json()),
+    initialData: initialReceipts,
   });
 
   const { data: rateData, isLoading: rateLoading } = useQuery<{ rate: number }>({

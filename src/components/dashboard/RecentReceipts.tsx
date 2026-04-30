@@ -25,12 +25,14 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 interface RecentReceiptsProps {
   travelId: string;
+  initialReceipts: ReceiptItem[];
 }
 
-export function RecentReceipts({ travelId }: RecentReceiptsProps) {
+export function RecentReceipts({ travelId, initialReceipts }: RecentReceiptsProps) {
   const { data: receipts, isLoading } = useQuery<ReceiptItem[]>({
     queryKey: ["receipts", travelId],
-    queryFn: () => fetch("/api/receipts").then((r) => r.json()),
+    queryFn: () => fetch(`/api/receipts?travelId=${travelId}`).then((r) => r.json()),
+    initialData: initialReceipts,
   });
 
   const recent = receipts?.slice(0, 5) ?? [];

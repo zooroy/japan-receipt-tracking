@@ -60,7 +60,6 @@ const TAX_TYPE_LABELS: Record<string, string> = {
 
 interface ReceiptListProps {
   initialReceipts: ReceiptRow[];
-  travelId: string;
 }
 
 export function ReceiptList({ initialReceipts }: ReceiptListProps) {

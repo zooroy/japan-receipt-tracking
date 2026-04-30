@@ -17,12 +17,17 @@ const receiptSchema = z.object({
   image_hash: z.string().optional().nullable(),
 });
 
-export async function GET() {
-  const activeTravel = await prisma.travel.findFirst({ where: { is_active: true } });
-  if (!activeTravel) return NextResponse.json([]);
+export async function GET(req: NextRequest) {
+  const travelId = req.nextUrl.searchParams.get("travelId");
+
+  const travel_id = travelId
+    ? travelId
+    : (await prisma.travel.findFirst({ where: { is_active: true } }))?.id;
+
+  if (!travel_id) return NextResponse.json([]);
 
   const receipts = await prisma.receipt.findMany({
-    where: { travel_id: activeTravel.id },
+    where: { travel_id },
     orderBy: { created_at: "desc" },
   });
   return NextResponse.json(receipts);

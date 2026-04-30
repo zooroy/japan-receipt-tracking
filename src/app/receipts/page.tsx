@@ -6,7 +6,13 @@ import { ReceiptList } from "@/components/receipts/ReceiptList";
 import type { Travel, Receipt } from "@/lib/types";
 
 export default async function ReceiptsPage() {
-  const travels = (await prisma.travel.findMany({ orderBy: { created_at: "desc" } })) as Travel[];
+  const rawTravels = await prisma.travel.findMany({ orderBy: { created_at: "desc" } });
+  const travels: Travel[] = rawTravels.map((t) => ({
+    ...t,
+    start_date: t.start_date?.toISOString() ?? null,
+    end_date: t.end_date?.toISOString() ?? null,
+    created_at: t.created_at.toISOString(),
+  }));
   const activeTravel = travels.find((t: Travel) => t.is_active) ?? null;
 
   if (!activeTravel) {
@@ -33,7 +39,7 @@ export default async function ReceiptsPage() {
         }
       />
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
-        <ReceiptList initialReceipts={receipts} travelId={activeTravel.id} />
+        <ReceiptList initialReceipts={receipts} />
       </main>
     </div>
   );
