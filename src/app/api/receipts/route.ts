@@ -23,7 +23,7 @@ export async function GET() {
 
   const receipts = await prisma.receipt.findMany({
     where: { travel_id: activeTravel.id },
-    orderBy: { date: "desc" },
+    orderBy: { created_at: "desc" },
   });
   return NextResponse.json(receipts);
 }
