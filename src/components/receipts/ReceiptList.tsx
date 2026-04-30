@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { ChevronDown, ChevronUp, Search, Receipt } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronLeft, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface ReceiptItem {
   name: string;
@@ -56,8 +64,27 @@ interface ReceiptListProps {
 }
 
 export function ReceiptList({ initialReceipts }: ReceiptListProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ReceiptRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError("");
+    const res = await fetch(`/api/receipts/${deleteTarget.id}`, { method: "DELETE" });
+    if (res.ok) {
+      setDeleteTarget(null);
+      router.refresh();
+    } else {
+      const data = await res.json();
+      setDeleteError(data.error ?? "刪除失敗");
+    }
+    setDeleting(false);
+  }
 
   const filtered = useMemo(() => {
     if (!search.trim()) return initialReceipts;
@@ -81,11 +108,13 @@ export function ReceiptList({ initialReceipts }: ReceiptListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">收據列表</h1>
-        <Link href="/receipts/new">
-          <Button size="sm">+ 新增</Button>
+      <div className="flex items-center gap-2">
+        <Link href="/">
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
         </Link>
+        <h1 className="text-xl font-semibold">收據列表</h1>
       </div>
 
       {/* Search */}
@@ -109,15 +138,7 @@ export function ReceiptList({ initialReceipts }: ReceiptListProps) {
       </div>
 
       {/* Receipt rows */}
-      {initialReceipts.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <Receipt className="h-8 w-8 mx-auto mb-3 opacity-40" />
-          <p>還沒有收據</p>
-          <Link href="/receipts/new">
-            <Button size="sm" className="mt-3">拍攝第一張收據</Button>
-          </Link>
-        </div>
-      ) : filtered.length === 0 ? (
+      {filtered.length === 0 ? (
         <p className="text-center py-8 text-muted-foreground text-sm">找不到符合的收據</p>
       ) : (
         <div className="divide-y border rounded-lg overflow-hidden">
@@ -179,6 +200,19 @@ export function ReceiptList({ initialReceipts }: ReceiptListProps) {
                     {r.notes && (
                       <p className="text-xs text-muted-foreground">備註：{r.notes}</p>
                     )}
+
+                    {/* Delete */}
+                    <div className="flex justify-end pt-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2 text-xs"
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(r); }}
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        刪除收據
+                      </Button>
+                    </div>
                   </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -186,6 +220,28 @@ export function ReceiptList({ initialReceipts }: ReceiptListProps) {
           })}
         </div>
       )}
+
+      {/* 刪除確認 Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setDeleteError(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>刪除收據</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            確定要刪除「<span className="font-medium text-foreground">{deleteTarget?.store_name_zh}</span>」的收據嗎？
+          </p>
+          <p className="text-sm text-destructive">此操作無法復原。</p>
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setDeleteTarget(null); setDeleteError(""); }} disabled={deleting}>
+              取消
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+              {deleting ? "刪除中..." : "確定刪除"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
