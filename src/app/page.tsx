@@ -7,7 +7,6 @@ import { DailyChart } from "@/components/dashboard/DailyChart";
 import { CategoryChart } from "@/components/dashboard/CategoryChart";
 import { TaxTypeSummary } from "@/components/dashboard/TaxTypeSummary";
 import { RecentReceipts } from "@/components/dashboard/RecentReceipts";
-import { NewReceiptButton } from "@/components/receipts/NewReceiptButton";
 import type { Travel } from "@/lib/types";
 
 export default async function DashboardPage() {
@@ -37,10 +36,9 @@ export default async function DashboardPage() {
       />
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
         {receiptCount === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full min-h-[60vh] gap-4 text-muted-foreground">
+          <div className="flex flex-col items-center justify-center h-full min-h-[60vh] gap-2 text-muted-foreground">
             <p className="text-lg font-medium text-foreground">還沒有收據</p>
-            <p className="text-sm">拍攝第一張收據開始記帳吧！</p>
-            <NewReceiptButton size="lg" />
+            <p className="text-sm">請點右上角「+ 新增收據」來新增</p>
           </div>
         ) : (
           <div className="space-y-4">
