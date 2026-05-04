@@ -64,21 +64,30 @@ export function DailyChart({ travelId, initialReceipts }: DailyChartProps) {
         ) : (
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                axisLine={{ stroke: "var(--border)" }}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                axisLine={false}
+                tickLine={false}
+              />
               <Tooltip
                 formatter={(value) => [`¥${Number(value).toLocaleString()}`, "花費"]}
                 contentStyle={{
-                  backgroundColor: "hsl(var(--popover))",
-                  border: "1px solid hsl(var(--border))",
+                  backgroundColor: "var(--popover)",
+                  border: "1px solid var(--border)",
                   borderRadius: "6px",
-                  color: "hsl(var(--popover-foreground))",
+                  color: "var(--popover-foreground)",
                   fontSize: 12,
                 }}
-                cursor={{ fill: "hsl(var(--muted))" }}
+                cursor={{ fill: "var(--muted)" }}
               />
-              <Bar dataKey="amount" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="amount" fill="var(--primary)" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getCategoryLabel, getCategoryColor } from "@/lib/categories";
 
 interface ReceiptItem {
   id: string;
@@ -13,15 +14,6 @@ interface ReceiptItem {
   total_amount: number;
   category: string;
 }
-
-const CATEGORY_LABELS: Record<string, string> = {
-  food: "飲食",
-  shopping: "購物",
-  transport: "交通",
-  accommodation: "住宿",
-  sightseeing: "觀光",
-  other: "其他",
-};
 
 interface RecentReceiptsProps {
   travelId: string;
@@ -54,8 +46,14 @@ export function RecentReceipts({ travelId, initialReceipts }: RecentReceiptsProp
                 <div key={r.id} className="flex items-center justify-between py-2.5">
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{r.store_name_zh}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(r.date), "M/d")} · {CATEGORY_LABELS[r.category] ?? r.category}
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      {format(new Date(r.date), "M/d")}
+                      <span>·</span>
+                      <span
+                        className="inline-block w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: getCategoryColor(r.category) }}
+                      />
+                      {getCategoryLabel(r.category)}
                     </p>
                   </div>
                   <span className="text-sm font-medium ml-3 shrink-0">

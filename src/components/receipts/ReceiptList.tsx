@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { getCategoryLabel, getCategoryColor } from "@/lib/categories";
 
 interface ReceiptItem {
   name: string;
@@ -41,15 +42,6 @@ interface ReceiptRow {
   items: ReceiptItem[] | unknown;
   notes: string | null;
 }
-
-const CATEGORY_LABELS: Record<string, string> = {
-  food: "飲食",
-  shopping: "購物",
-  transport: "交通",
-  accommodation: "住宿",
-  sightseeing: "觀光",
-  other: "其他",
-};
 
 const TAX_TYPE_LABELS: Record<string, string> = {
   reduced_8: "8%軽減",
@@ -155,8 +147,14 @@ export function ReceiptList({ initialReceipts }: ReceiptListProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm truncate">{r.store_name_zh}</span>
-                      <Badge variant="secondary" className="text-xs shrink-0">
-                        {CATEGORY_LABELS[r.category] ?? r.category}
+                      <Badge
+                        className="text-xs shrink-0 border-0"
+                        style={{
+                          backgroundColor: `${getCategoryColor(r.category)}30`,
+                          color: getCategoryColor(r.category),
+                        }}
+                      >
+                        {getCategoryLabel(r.category)}
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">

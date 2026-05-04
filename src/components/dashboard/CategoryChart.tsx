@@ -4,22 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getCategoryLabel, getCategoryColor } from "@/lib/categories";
 
 interface Receipt {
   category: string;
   total_amount: number;
 }
-
-const CATEGORY_LABELS: Record<string, string> = {
-  food: "飲食",
-  shopping: "購物",
-  transport: "交通",
-  accommodation: "住宿",
-  sightseeing: "觀光",
-  other: "其他",
-};
-
-const COLORS = ["#6366f1", "#f59e0b", "#10b981", "#3b82f6", "#ec4899", "#8b5cf6"];
 
 interface CategoryChartProps {
   travelId: string;
@@ -42,8 +32,9 @@ export function CategoryChart({ travelId, initialReceipts }: CategoryChartProps)
     return Object.entries(byCategory)
       .sort(([, a], [, b]) => b - a)
       .map(([category, amount]) => ({
-        name: CATEGORY_LABELS[category] ?? category,
+        name: getCategoryLabel(category),
         value: amount,
+        color: getCategoryColor(category),
       }));
   })();
 
@@ -69,17 +60,17 @@ export function CategoryChart({ travelId, initialReceipts }: CategoryChartProps)
                 dataKey="value"
                 label={false}
               >
-                {chartData.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                {chartData.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip
                 formatter={(value) => [`¥${Number(value).toLocaleString()}`, ""]}
                 contentStyle={{
-                  backgroundColor: "hsl(var(--popover))",
-                  border: "1px solid hsl(var(--border))",
+                  backgroundColor: "var(--popover)",
+                  border: "1px solid var(--border)",
                   borderRadius: "6px",
-                  color: "hsl(var(--popover-foreground))",
+                  color: "var(--popover-foreground)",
                   fontSize: 12,
                 }}
               />
