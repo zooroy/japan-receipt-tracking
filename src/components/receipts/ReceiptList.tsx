@@ -3,8 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { ChevronDown, ChevronUp, ChevronLeft, Search, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { ChevronDown, ChevronUp, Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -99,15 +98,6 @@ export function ReceiptList({ initialReceipts }: ReceiptListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Link href="/">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <h1 className="text-xl font-semibold">收據列表</h1>
-      </div>
-
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
