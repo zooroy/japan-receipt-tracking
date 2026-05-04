@@ -12,13 +12,6 @@ export async function DELETE(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  if (travel.is_active) {
-    return NextResponse.json(
-      { error: "無法刪除目前使用中的旅程，請先切換到其他旅程" },
-      { status: 400 }
-    );
-  }
-
   // 先刪除該旅程的所有收據，再刪旅程
   await prisma.$transaction([
     prisma.receipt.deleteMany({ where: { travel_id: id } }),

@@ -54,10 +54,11 @@ export function CreateTravelDialog({
     });
 
     if (res.ok) {
+      const travel = await res.json();
+      await fetch(`/api/travels/${travel.id}/activate`, { method: "POST" });
       reset();
       onOpenChange(false);
-      router.refresh();
-      onSuccess?.();
+      router.push("/");
     }
     setLoading(false);
   }

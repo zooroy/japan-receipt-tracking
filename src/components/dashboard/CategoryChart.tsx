@@ -75,6 +75,13 @@ export function CategoryChart({ travelId, initialReceipts }: CategoryChartProps)
               </Pie>
               <Tooltip
                 formatter={(value) => [`¥${Number(value).toLocaleString()}`, ""]}
+                contentStyle={{
+                  backgroundColor: "hsl(var(--popover))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "6px",
+                  color: "hsl(var(--popover-foreground))",
+                  fontSize: 12,
+                }}
               />
               <Legend iconSize={10} iconType="circle" wrapperStyle={{ fontSize: 12 }} />
             </PieChart>

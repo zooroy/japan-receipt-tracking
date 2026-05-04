@@ -112,16 +112,14 @@ export function TravelList({ travels, activeTravel, autoOpenCreate }: TravelList
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    {!isActive && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(travel); }}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(travel); }}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

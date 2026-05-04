@@ -69,6 +69,14 @@ export function DailyChart({ travelId, initialReceipts }: DailyChartProps) {
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip
                 formatter={(value) => [`¥${Number(value).toLocaleString()}`, "花費"]}
+                contentStyle={{
+                  backgroundColor: "hsl(var(--popover))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "6px",
+                  color: "hsl(var(--popover-foreground))",
+                  fontSize: 12,
+                }}
+                cursor={{ fill: "hsl(var(--muted))" }}
               />
               <Bar dataKey="amount" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
             </BarChart>
