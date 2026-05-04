@@ -144,3 +144,38 @@
 - [x] 20.1 `CreateTravelDialog.tsx` 建立旅程成功後，呼叫 `/api/travels/:id/activate` 自動啟用新旅程，再以 `router.push("/")` 導覽至 Dashboard，使用者無需手動切換
 - [x] 20.2 `src/app/api/travels/[id]/route.ts` DELETE endpoint 移除「當前旅程不可刪除」的 400 防護，允許刪除任何旅程（含 active travel）
 - [x] 20.3 `TravelList.tsx` 刪除按鈕移除 `{!isActive && ...}` 條件，所有旅程（含啟用中）均顯示刪除按鈕
+
+## 21. 日本收據驗證
+
+- [x] 21.1 `src/lib/gemini.ts` 在 Gemini schema 新增 `is_japanese_receipt: boolean` 欄位，讓 AI 自動判斷圖片是否為日本收據
+- [x] 21.2 `src/app/api/analyze-receipt/route.ts` 收到 Gemini 回傳後，若 `is_japanese_receipt` 為 false 則回傳 422（非日本收據），不進行後續儲存流程
+- [x] 21.3 `NewReceiptClient` 處理 422 回應，顯示「非日本收據」錯誤提示，讓使用者重新選圖
+
+## 22. 底部導航列與行動端 UX 優化
+
+- [x] 22.1 建立 `src/components/layout/BottomNav.tsx`：固定於頁面底部，包含「儀表板」、「收據」、「+」、「旅程」四個項目，以 `pathname` 標示當前頁籤
+- [x] 22.2 BottomNav 中央「+」按鈕直接觸發隱藏的 `<input type="file" multiple>`，點擊後出現原生相機／相簿選擇器，跳過中間 dialog 選擇步驟
+- [x] 22.3 BottomNav 實作多圖批次上傳：以 `fileQueue: File[]` + `currentIndex` 管理圖片佇列，`key={currentIndex}` 強制每張圖重新掛載 dialog；`handleSuccess` 完成後自動推進至下一張
+- [x] 22.4 `NewReceiptDialog` 新增 `fileProgress?: { current: number; total: number }` prop，批次上傳時 dialog 標題顯示「新增收據（1／3）」進度
+- [x] 22.5 各頁面（Dashboard、收據、旅程）加入 `<BottomNav />`，主內容區加入 `pb-24` 避免被底部列遮蓋
+- [x] 22.6 `Navbar` 移除 sticky 定位、移除「+ 新增收據」按鈕與 TravelSwitcher，改為顯示 favicon 圖片、「日本記帳」文字與當前旅程名稱（`travelName` prop）
+
+## 23. NewReceiptClient 重構（跳過 idle 狀態）
+
+- [x] 23.1 `NewReceiptClient` 接受 `initialFile?: File` prop，移除 idle 狀態；state 改為 `"analyzing" | "confirm" | "error"`
+- [x] 23.2 `useEffect` 搭配 `analyzedRef` ref guard，有 `initialFile` 時自動呼叫 `analyzeFile(initialFile)` 直接進入分析狀態，不顯示拍照/相簿選擇畫面
+- [x] 23.3 Error 狀態顯示錯誤訊息與「關閉」按鈕（呼叫 `onClose`），不回到 idle 選擇畫面
+
+## 24. iOS 行動端顯示修復
+
+- [x] 24.1 `src/app/globals.css` 的 `.dark` 區塊加入 `color-scheme: dark`，修正 iOS 深色模式下原生表單元素（date input）文字不可見的問題
+- [x] 24.2 `ReceiptConfirm.tsx` 消費日期與總金額的 2 欄 grid 改為 `grid-cols-1 sm:grid-cols-2`，修正 iOS 手機版面溢出問題
+- [x] 24.3 `CreateTravelDialog.tsx` 出發／回程日期的 2 欄 grid 改為 `grid-cols-1 sm:grid-cols-2`，修正 iOS 手機版面溢出問題
+
+## 25. DatePicker Component
+
+- [x] 25.1 建立 `src/components/ui/date-picker.tsx`，基於 shadcn/ui 官方模式（`Popover` + `Calendar` + `PopoverTrigger render={<Button>}`），支援 `value`/`onChange` 受控介面，選完日期後自動關閉 calendar
+- [x] 25.2 `ReceiptConfirm.tsx` 消費日期欄位由 `<Input type="date">` 改用 `DatePicker`，搭配 react-hook-form `Controller`
+- [x] 25.3 `CreateTravelDialog.tsx` 出發日期、回程日期由 `<Input type="date">` 改用 `DatePicker`，搭配 react-hook-form `Controller`
+- [x] 25.4 `CategoryChart.tsx` 消費分類圓餅圖圖例（Legend）加入 `paddingTop: 12`，增加圖例與圓餅圖之間的間距
+- [x] 25.5 更新 `README.md`：修正過時的旅程切換說明、補充底部導航列、批次上傳、AI 驗證日本收據、PWA 支援等新功能說明
