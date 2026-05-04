@@ -28,7 +28,7 @@
 
 - `user-auth`: 以 Next.js Middleware 驗證密碼 cookie，保護所有路由，僅允許持有正確密碼的裝置存取，無帳號系統
 - `travel-management`: 建立與管理旅程（名稱、起迄日期），切換當前使用中旅程，點擊旅程卡片即可切換並導覽至 Dashboard；所有收據與統計以旅程為單位隔離
-- `travel-deletion`: 刪除非當前旅程（含其所有收據），需二次確認 Dialog；當前使用中旅程不可刪除
+- `travel-deletion`: 刪除任意旅程（含啟用中旅程，含其所有收據），需二次確認 Dialog
 - `receipt-capture`: 拍攝或上傳收據圖片，以 Dialog 彈窗流程呈現；呼叫 Gemini AI 擷取結構化資料（店名、金額、品項、稅別），並翻譯為繁體中文；AI 分析中禁止關閉彈窗；使用者確認後儲存至當前旅程
 - `receipt-deduplication`: 上傳收據圖片前先計算 SHA-256 hash，比對資料庫中已存記錄；若重複則顯示已收錄的旅程與店名，阻止重複分析
 - `currency-conversion`: 整合 ExchangeRate-API，每日快取 JPY → TWD 匯率，於新增收據時自動換算並儲存當日匯率
@@ -37,7 +37,9 @@
 
 ### Modified Capabilities
 
-（無，此為全新專案，以上皆為新增）
+- `travel-deletion`: 移除「當前旅程不可刪除」限制，允許刪除任何旅程（含 active travel）
+- `travel-management`: 建立旅程後自動啟用並導覽至 Dashboard（原為僅刷新列表）
+- `dashboard`: 圖表加入暗色主題支援（CSS 變數套用至 Recharts），建立分類顏色系統（`src/lib/categories.ts`），chart skeleton loading fallback 消除 CLS
 
 ## Impact
 
@@ -76,4 +78,13 @@
   - New: src/components/receipts/NewReceiptDialog.tsx
   - New: src/components/receipts/NewReceiptButton.tsx
   - New: prisma/schema.prisma
-  - New: middleware.ts
+  - New: middleware.ts (→ renamed to src/proxy.ts in Next.js 16)
+  - New: src/lib/categories.ts
+  - Modified: src/components/travels/CreateTravelDialog.tsx
+  - Modified: src/components/travels/TravelList.tsx
+  - Modified: src/app/api/travels/[id]/route.ts
+  - Modified: src/components/dashboard/DailyChart.tsx
+  - Modified: src/components/dashboard/CategoryChart.tsx
+  - Modified: src/components/dashboard/LazyCharts.tsx
+  - Modified: src/components/dashboard/RecentReceipts.tsx
+  - Modified: src/components/receipts/ReceiptList.tsx

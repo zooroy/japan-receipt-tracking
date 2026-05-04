@@ -120,3 +120,27 @@
 - [x] 16.2 Navbar 移除 MapPin 旅程管理圖示按鈕（Travel Management Navigation Link 整合至 TravelSwitcher）
 - [x] 16.3 Navbar 新增 `minimal` prop，travels 頁面使用 `<Navbar minimal />`，隱藏 travelSwitcher、新增收據按鈕
 - [x] 16.4 `src/app/travels/page.tsx` 啟用中旅程置頂：active travel 排第一，其餘依 created_at 倒序
+
+## 17. Next.js 16 遷移修復
+
+- [x] 17.1 將 `src/middleware.ts` 更名為 `src/proxy.ts`，函式名稱由 `middleware` 改為 `proxy`（Next.js 16 breaking change：middleware → proxy），解決 `pnpm dev` 執行數分鐘後崩潰的問題
+
+## 18. Dashboard 圖表暗色主題與效能優化
+
+- [x] 18.1 `LazyCharts.tsx` 兩個 `dynamic()` 呼叫加入 `loading` fallback（Card + Skeleton），DailyChart 為 `h-40`、CategoryChart 為 `h-[180px]`，消除 chart 區域在 hydration 前的空白 CLS
+- [x] 18.2 `DailyChart.tsx` 所有圖表元素改用 CSS 變數（`var(--muted-foreground)`、`var(--border)`、`var(--primary)`、`var(--popover)` 等），修正暗色主題下顏色不匹配問題
+- [x] 18.3 `DailyChart.tsx` Tooltip 加入 `contentStyle` 覆寫，使用 `var(--popover)`、`var(--border)`、`var(--popover-foreground)`，修正暗色主題下 tooltip 全白問題
+- [x] 18.4 `CategoryChart.tsx` Tooltip 同步修正暗色主題 `contentStyle`
+- [x] 18.5 `CategoryChart.tsx` 移除以 index 為基礎的本地 `COLORS` 陣列，改用 `getCategoryColor()` 依分類鍵取色，確保與其他元件顏色一致
+
+## 19. 消費分類顏色系統
+
+- [x] 19.1 建立 `src/lib/categories.ts`，定義 `CATEGORIES` 常數（food、shopping、transport、accommodation、sightseeing、other），提供 `getCategoryLabel()` 與 `getCategoryColor()` 共用函式
+- [x] 19.2 `RecentReceipts.tsx` 移除本地 `CATEGORY_LABELS`，在分類文字左側加入 `w-2 h-2 rounded-full` 彩色圓點，以 `getCategoryColor()` 設定 `backgroundColor`
+- [x] 19.3 `ReceiptList.tsx` 移除本地 `CATEGORY_LABELS`，收據列表的分類 Badge 改用 `getCategoryColor()` 動態設定背景色（30% 透明度）與文字色，`border-0` 移除邊框
+
+## 20. 旅程管理 UX 改善
+
+- [x] 20.1 `CreateTravelDialog.tsx` 建立旅程成功後，呼叫 `/api/travels/:id/activate` 自動啟用新旅程，再以 `router.push("/")` 導覽至 Dashboard，使用者無需手動切換
+- [x] 20.2 `src/app/api/travels/[id]/route.ts` DELETE endpoint 移除「當前旅程不可刪除」的 400 防護，允許刪除任何旅程（含 active travel）
+- [x] 20.3 `TravelList.tsx` 刪除按鈕移除 `{!isActive && ...}` 條件，所有旅程（含啟用中）均顯示刪除按鈕

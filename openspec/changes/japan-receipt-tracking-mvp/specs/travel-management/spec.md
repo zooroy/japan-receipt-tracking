@@ -76,6 +76,21 @@ The system SHALL allow the user to delete any travel that is NOT currently activ
 
 The system SHALL display a TravelSwitcher component in the navigation bar showing the current active travel name. Tapping it SHALL open a dropdown listing all travels, allowing the user to switch or navigate to the travel management page.
 
+#### Scenario: Switcher shows active travel name
+
+- **WHEN** the user views any page with the Navbar
+- **THEN** the TravelSwitcher SHALL display the name of the currently active travel
+
+#### Scenario: Dropdown lists all travels
+
+- **WHEN** the user taps the TravelSwitcher
+- **THEN** a dropdown SHALL appear listing all travels, with the active travel visually indicated
+
+#### Scenario: Navigate to travel management from switcher
+
+- **WHEN** the user selects "旅程管理" from the TravelSwitcher dropdown
+- **THEN** the system SHALL navigate to `/travels`
+
 ### Requirement: Travel Management Navigation Link
 
 The system SHALL display a navigation link (MapPin icon button) in the Navbar, positioned to the right of the app logo, that navigates to the travel list page (`/travels`).

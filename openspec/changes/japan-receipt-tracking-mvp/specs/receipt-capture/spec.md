@@ -8,6 +8,16 @@ The system SHALL provide two separate image input buttons on the receipt capture
 
 Both buttons MUST work on mobile browsers (iOS Safari, Android Chrome). Using a single input with `capture="environment"` is explicitly forbidden as it bypasses the gallery on iOS Safari.
 
+#### Scenario: Camera button opens rear camera
+
+- **WHEN** the user taps the camera button
+- **THEN** the device's rear camera SHALL open directly without showing a file picker
+
+#### Scenario: Gallery button opens file picker
+
+- **WHEN** the user taps the gallery button
+- **THEN** the device's photo gallery or file picker SHALL open, allowing selection of any image file
+
 ### Requirement: Receipt Capture Dialog
 
 The system SHALL present the receipt capture flow as a Dialog modal (`NewReceiptDialog`) rather than a separate page navigation. The dialog SHALL be triggerable from the Navbar and from the dashboard empty state. The dialog behavior SHALL vary by state:
@@ -47,7 +57,7 @@ Before calling the Gemini API, the system SHALL compute a SHA-256 hash of the up
 
 ### Requirement: AI Receipt Analysis via Gemini
 
-The system SHALL send the receipt image as base64 to the Gemini AI API. The API Route SHALL extract the following fields:
+The system SHALL send the receipt image as base64 to the Gemini AI API and return structured JSON. The API Route SHALL extract the following fields:
 
 - `store_name`: original store name (Japanese)
 - `store_name_zh`: store name translated to Traditional Chinese
@@ -58,6 +68,16 @@ The system SHALL send the receipt image as base64 to the Gemini AI API. The API 
 - `items`: array of `{ name: string, name_zh: string, price: number }`
 
 The image SHALL NOT be stored anywhere after analysis.
+
+#### Scenario: Successful analysis returns structured data
+
+- **WHEN** Gemini successfully processes the receipt image
+- **THEN** the API SHALL return a JSON object containing store_name, store_name_zh, date, total_amount, tax_type, category, and items array
+
+#### Scenario: Image not stored after analysis
+
+- **WHEN** the Gemini API call completes (success or failure)
+- **THEN** the image bytes SHALL NOT be written to any database or file storage
 
 ##### Example: tax type extraction
 

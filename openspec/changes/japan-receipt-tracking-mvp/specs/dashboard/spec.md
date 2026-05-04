@@ -28,6 +28,11 @@ When the active travel has zero receipts, the dashboard SHALL display only a cen
 
 The dashboard SHALL display a bar chart showing daily spending in JPY for each day that has receipts in the active travel.
 
+#### Scenario: Chart renders per-day bars
+
+- **WHEN** the active travel has receipts on multiple days
+- **THEN** each day SHALL be represented as a bar with height proportional to that day's total JPY spending
+
 ##### Example: daily chart data
 
 - **GIVEN** active travel has receipts on 2025-05-03 totaling ¥2,400 and on 2025-05-05 totaling ¥5,800
@@ -38,9 +43,19 @@ The dashboard SHALL display a bar chart showing daily spending in JPY for each d
 
 The dashboard SHALL display a donut chart showing the percentage breakdown of total JPY spending by category.
 
+#### Scenario: Chart shows category slices
+
+- **WHEN** the active travel has receipts with at least two different categories
+- **THEN** the donut chart SHALL display one slice per category, with each slice sized proportionally to that category's total JPY amount
+
 ### Requirement: Tax Type Summary
 
 The dashboard SHALL display a summary panel showing the breakdown of total spending by tax type.
+
+#### Scenario: Summary shows each tax type present
+
+- **WHEN** the active travel has receipts with different tax types
+- **THEN** the panel SHALL display a row for each tax type present, showing the label and total JPY amount
 
 ### Requirement: Recent Receipts List on Dashboard
 
