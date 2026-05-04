@@ -16,22 +16,38 @@ const NAV_ITEMS = [
 export function BottomNav() {
   const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileQueue, setFileQueue] = useState<File[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const currentFile = fileQueue[currentIndex] ?? null;
+  const total = fileQueue.length;
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
+    const files = Array.from(e.target.files ?? []);
+    if (files.length > 0) {
+      setFileQueue(files);
+      setCurrentIndex(0);
       setDialogOpen(true);
     }
     e.target.value = "";
   }
 
+  function handleSuccess() {
+    if (currentIndex < total - 1) {
+      setCurrentIndex((i) => i + 1);
+    } else {
+      setDialogOpen(false);
+      setFileQueue([]);
+      setCurrentIndex(0);
+    }
+  }
+
   function handleDialogClose(open: boolean) {
     if (!open) {
       setDialogOpen(false);
-      setSelectedFile(null);
+      setFileQueue([]);
+      setCurrentIndex(0);
     }
   }
 
@@ -62,6 +78,7 @@ export function BottomNav() {
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               className="hidden"
               onChange={handleFileChange}
             />
@@ -94,9 +111,12 @@ export function BottomNav() {
       </nav>
 
       <NewReceiptDialog
+        key={currentIndex}
         open={dialogOpen}
         onOpenChange={handleDialogClose}
-        initialFile={selectedFile ?? undefined}
+        initialFile={currentFile ?? undefined}
+        onSuccess={handleSuccess}
+        fileProgress={total > 1 ? { current: currentIndex + 1, total } : undefined}
       />
     </>
   );

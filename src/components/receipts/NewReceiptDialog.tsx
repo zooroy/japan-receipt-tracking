@@ -9,35 +9,34 @@ import {
 } from "@/components/ui/dialog";
 import { NewReceiptClient } from "./NewReceiptClient";
 
-type ReceiptState = "analyzing" | "confirm" | "error";
-
 interface NewReceiptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialFile?: File;
+  onSuccess?: () => void;
+  fileProgress?: { current: number; total: number };
 }
 
-export function NewReceiptDialog({ open, onOpenChange, initialFile }: NewReceiptDialogProps) {
+export function NewReceiptDialog({ open, onOpenChange, initialFile, onSuccess, fileProgress }: NewReceiptDialogProps) {
   const router = useRouter();
 
   function handleSuccess() {
-    onOpenChange(false);
     router.refresh();
+    onSuccess?.();
   }
 
-  function handleStateChange(state: ReceiptState) {
-    if (state === "analyzing") return;
-  }
+  const title = fileProgress
+    ? `新增收據（${fileProgress.current}／${fileProgress.total}）`
+    : "新增收據";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} disablePointerDismissal={true}>
       <DialogContent className="sm:max-w-md max-h-[90dvh] overflow-y-auto" showCloseButton={true}>
         <DialogHeader>
-          <DialogTitle>新增收據</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <NewReceiptClient
           onSuccess={handleSuccess}
-          onStateChange={handleStateChange}
           onClose={() => onOpenChange(false)}
           initialFile={initialFile}
         />
