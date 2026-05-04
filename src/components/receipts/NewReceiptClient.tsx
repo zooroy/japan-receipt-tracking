@@ -1,32 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { ReceiptCapture } from "./ReceiptCapture";
+import { useState, useEffect, useRef } from "react";
 import { ReceiptConfirm } from "./ReceiptConfirm";
 import type { ReceiptData } from "@/lib/gemini";
 import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-type State = "idle" | "analyzing" | "confirm";
+type State = "analyzing" | "confirm" | "error";
 
 interface NewReceiptClientProps {
   onSuccess?: () => void;
   onStateChange?: (state: State) => void;
+  onClose?: () => void;
+  initialFile?: File;
 }
 
-export function NewReceiptClient({ onSuccess, onStateChange }: NewReceiptClientProps = {}) {
-  const [state, setState] = useState<State>("idle");
+export function NewReceiptClient({ onSuccess, onStateChange, onClose, initialFile }: NewReceiptClientProps = {}) {
+  const [state, setState] = useState<State>("analyzing");
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
   const [error, setError] = useState("");
+  const analyzedRef = useRef(false);
 
-  function setStateWithNotify(next: State) {
-    setState(next);
-    onStateChange?.(next);
-  }
-
-  async function handleImageSelected(file: File) {
-    setStateWithNotify("analyzing");
-    setError("");
-
+  async function analyzeFile(file: File) {
     const formData = new FormData();
     formData.append("image", file);
 
@@ -35,20 +30,29 @@ export function NewReceiptClient({ onSuccess, onStateChange }: NewReceiptClientP
     if (res.ok) {
       const data = await res.json();
       setReceiptData(data);
-      setStateWithNotify("confirm");
+      setState("confirm");
+      onStateChange?.("confirm");
     } else if (res.status === 409) {
       const { store_name_zh, date, travel_name } = await res.json();
       const dateStr = new Date(date).toLocaleDateString("zh-TW");
       setError(`此收據已重複：${store_name_zh}（${dateStr}）收錄於「${travel_name}」`);
-      setStateWithNotify("idle");
+      setState("error");
     } else if (res.status === 422) {
       setError("這不是日本收據，請上傳日本消費收據");
-      setStateWithNotify("idle");
+      setState("error");
     } else {
-      setError("無法解析收據，請重試或手動輸入");
-      setStateWithNotify("idle");
+      setError("無法解析收據，請重試");
+      setState("error");
     }
   }
+
+  useEffect(() => {
+    if (initialFile && !analyzedRef.current) {
+      analyzedRef.current = true;
+      analyzeFile(initialFile);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFile]);
 
   if (state === "analyzing") {
     return (
@@ -59,23 +63,24 @@ export function NewReceiptClient({ onSuccess, onStateChange }: NewReceiptClientP
     );
   }
 
+  if (state === "error") {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 gap-4">
+        <p className="text-center text-sm text-destructive">{error}</p>
+        <Button variant="outline" onClick={onClose}>關閉</Button>
+      </div>
+    );
+  }
+
   if (state === "confirm" && receiptData) {
     return (
       <ReceiptConfirm
         data={receiptData}
-        onCancel={() => { setStateWithNotify("idle"); setReceiptData(null); }}
+        onCancel={() => onClose?.()}
         onSuccess={onSuccess}
       />
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <p className="text-center text-muted-foreground text-sm">
-        拍攝或從相簿選取收據，AI 將自動擷取資訊
-      </p>
-      <ReceiptCapture onImageSelected={handleImageSelected} />
-      {error && <p className="text-center text-sm text-destructive">{error}</p>}
-    </div>
-  );
+  return null;
 }

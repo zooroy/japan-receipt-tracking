@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,30 @@ interface NavbarProps {
 
 export function Navbar({ travelSwitcher, minimal }: NavbarProps) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   async function handleSignOut() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
     router.refresh();
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setDialogOpen(true);
+    }
+    e.target.value = "";
+  }
+
+  function handleDialogClose(open: boolean) {
+    if (!open) {
+      setDialogOpen(false);
+      setSelectedFile(null);
+    }
   }
 
   return (
@@ -33,13 +51,28 @@ export function Navbar({ travelSwitcher, minimal }: NavbarProps) {
         {!minimal && <div className="flex-1 min-w-0">{travelSwitcher}</div>}
         <div className="flex items-center gap-2 shrink-0">
           {!minimal && (
-            <Button size="sm" onClick={() => setDialogOpen(true)}>+ 新增收據</Button>
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <Button size="sm" onClick={() => fileInputRef.current?.click()}>
+                + 新增收據
+              </Button>
+            </>
           )}
           <Button variant="ghost" size="icon" onClick={handleSignOut} title="登出">
             <LogOut className="h-4 w-4" />
           </Button>
         </div>
-        <NewReceiptDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+        <NewReceiptDialog
+          open={dialogOpen}
+          onOpenChange={handleDialogClose}
+          initialFile={selectedFile ?? undefined}
+        />
       </div>
     </header>
   );
