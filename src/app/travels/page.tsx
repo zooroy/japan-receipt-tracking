@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { getTravels } from "@/lib/queries";
 import { Navbar } from "@/components/layout/Navbar";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { TravelList } from "@/components/travels/TravelList";
 import type { Travel } from "@/lib/types";
 
@@ -26,13 +27,14 @@ export default async function TravelsPage({ searchParams }: TravelsPageProps) {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar minimal />
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
+      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 pb-24">
         <TravelList
           travels={travels}
           activeTravel={activeTravel}
           autoOpenCreate={newParam === "true"}
         />
       </main>
+      <BottomNav />
     </div>
   );
 }

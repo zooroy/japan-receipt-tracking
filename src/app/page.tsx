@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getTravels } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
-import { TravelSwitcher } from "@/components/travels/TravelSwitcher";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { SpendingOverview } from "@/components/dashboard/SpendingOverview";
 import { DailyChart, CategoryChart } from "@/components/dashboard/LazyCharts";
 import { TaxTypeSummary } from "@/components/dashboard/TaxTypeSummary";
@@ -40,16 +40,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar
-        travelSwitcher={
-          <TravelSwitcher travels={travels} activeTravel={activeTravel} />
-        }
-      />
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
+      <Navbar travelName={activeTravel.name} />
+      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 pb-24">
         {receipts.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full min-h-[60vh] gap-2 text-muted-foreground">
             <p className="text-lg font-medium text-foreground">還沒有收據</p>
-            <p className="text-sm">請點右上角「+ 新增收據」來新增</p>
+            <p className="text-sm">請點下方「＋」按鈕來新增</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -63,6 +59,7 @@ export default async function DashboardPage() {
           </div>
         )}
       </main>
+      <BottomNav />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getTravels } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
-import { TravelSwitcher } from "@/components/travels/TravelSwitcher";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { ReceiptList } from "@/components/receipts/ReceiptList";
 import type { Travel, Receipt } from "@/lib/types";
 
@@ -35,14 +35,11 @@ export default async function ReceiptsPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar
-        travelSwitcher={
-          <TravelSwitcher travels={travels} activeTravel={activeTravel} />
-        }
-      />
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
+      <Navbar travelName={activeTravel.name} />
+      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 pb-24">
         <ReceiptList initialReceipts={receipts} />
       </main>
+      <BottomNav />
     </div>
   );
 }
