@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -58,7 +59,7 @@ export function ReceiptConfirm({ data, onCancel, onSuccess }: ReceiptConfirmProp
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, setValue } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, control } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       date: data.date,
@@ -104,10 +105,16 @@ export function ReceiptConfirm({ data, onCancel, onSuccess }: ReceiptConfirmProp
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>消費日期</Label>
-          <Input type="date" {...register("date")} />
+          <Controller
+            control={control}
+            name="date"
+            render={({ field }) => (
+              <DatePicker value={field.value} onChange={field.onChange} />
+            )}
+          />
         </div>
         <div className="space-y-2">
           <Label>總金額（¥）</Label>

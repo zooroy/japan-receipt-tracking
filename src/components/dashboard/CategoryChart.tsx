@@ -74,7 +74,7 @@ export function CategoryChart({ travelId, initialReceipts }: CategoryChartProps)
                   fontSize: 12,
                 }}
               />
-              <Legend iconSize={10} iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+              <Legend iconSize={10} iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 12 }} />
             </PieChart>
           </ResponsiveContainer>
         )}
