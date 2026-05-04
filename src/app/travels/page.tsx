@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getTravels } from "@/lib/queries";
 import { Navbar } from "@/components/layout/Navbar";
 import { TravelList } from "@/components/travels/TravelList";

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/prisma";
 import { getTravels } from "@/lib/queries";
 import { redirect } from "next/navigation";
