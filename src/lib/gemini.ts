@@ -6,6 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const receiptSchema: any = {
   type: SchemaType.OBJECT,
   properties: {
+    is_japanese_receipt: { type: SchemaType.BOOLEAN, description: "是否為日本收據（含日文文字、日圓金額、日本稅別等特徵）" },
     store_name: { type: SchemaType.STRING, description: "店名（日文原文）" },
     store_name_zh: { type: SchemaType.STRING, description: "店名繁體中文翻譯" },
     date: { type: SchemaType.STRING, description: "消費日期 YYYY-MM-DD 格式，如收據上沒有日期則用今天" },
@@ -34,10 +35,11 @@ const receiptSchema: any = {
       },
     },
   },
-  required: ["store_name", "store_name_zh", "date", "total_amount", "tax_type", "category", "items"],
+  required: ["is_japanese_receipt", "store_name", "store_name_zh", "date", "total_amount", "tax_type", "category", "items"],
 };
 
 export interface ReceiptData {
+  is_japanese_receipt: boolean;
   store_name: string;
   store_name_zh: string;
   date: string;

@@ -41,6 +41,9 @@ export function NewReceiptClient({ onSuccess, onStateChange }: NewReceiptClientP
       const dateStr = new Date(date).toLocaleDateString("zh-TW");
       setError(`此收據已重複：${store_name_zh}（${dateStr}）收錄於「${travel_name}」`);
       setStateWithNotify("idle");
+    } else if (res.status === 422) {
+      setError("這不是日本收據，請上傳日本消費收據");
+      setStateWithNotify("idle");
     } else {
       setError("無法解析收據，請重試或手動輸入");
       setStateWithNotify("idle");

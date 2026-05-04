@@ -33,5 +33,10 @@ export async function POST(req: NextRequest) {
 
   const base64 = Buffer.from(buffer).toString("base64");
   const data = await analyzeReceipt(base64, file.type);
+
+  if (!data.is_japanese_receipt) {
+    return NextResponse.json({ error: "not_japanese_receipt" }, { status: 422 });
+  }
+
   return NextResponse.json({ ...data, image_hash: imageHash });
 }
