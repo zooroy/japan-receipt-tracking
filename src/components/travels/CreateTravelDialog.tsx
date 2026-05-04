@@ -81,7 +81,7 @@ export function CreateTravelDialog({
               <p className="text-sm text-destructive">{errors.name.message}</p>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start_date">出發日期</Label>
               <Input id="start_date" type="date" {...register("start_date")} />

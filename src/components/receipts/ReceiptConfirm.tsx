@@ -58,7 +58,7 @@ export function ReceiptConfirm({ data, onCancel, onSuccess }: ReceiptConfirmProp
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, setValue, watch } = useForm<FormValues>({
+  const { register, handleSubmit, setValue } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       date: data.date,
@@ -104,7 +104,7 @@ export function ReceiptConfirm({ data, onCancel, onSuccess }: ReceiptConfirmProp
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>消費日期</Label>
           <Input type="date" {...register("date")} />
