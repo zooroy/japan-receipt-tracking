@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(
@@ -12,5 +13,7 @@ export async function POST(
     prisma.travel.update({ where: { id }, data: { is_active: true } }),
   ]);
 
+  revalidateTag("travels", { expire: 0 });
+  revalidateTag("receipts", { expire: 0 });
   return NextResponse.json({ ok: true });
 }

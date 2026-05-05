@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { MapPin, Plus, Check, Trash2 } from "lucide-react";
+import { MapPin, Plus, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,19 +31,15 @@ export function TravelList({ travels, activeTravel, autoOpenCreate }: TravelList
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
-  useEffect(() => {
-    if (autoOpenCreate) setDialogOpen(true);
-  }, [autoOpenCreate]);
-
   async function handleSwitch(id: string, redirect = false) {
     setSwitching(id);
     await fetch(`/api/travels/${id}/activate`, { method: "POST" });
+    setSwitching(null);
     if (redirect) {
       router.push("/");
     } else {
       router.refresh();
     }
-    setSwitching(null);
   }
 
   async function handleDelete() {
@@ -86,12 +82,13 @@ export function TravelList({ travels, activeTravel, autoOpenCreate }: TravelList
             return (
               <Card
                 key={travel.id}
-                className={`cursor-pointer transition-colors hover:bg-muted/50 ${isActive ? "border-primary/50 bg-primary/5" : ""}`}
+                className={`transition-colors ${switching === travel.id ? "opacity-60 cursor-wait pointer-events-none" : "cursor-pointer hover:bg-muted/50"} ${isActive ? "border-primary/50 bg-primary/5" : ""}`}
                 onClick={() => isActive ? router.push("/") : handleSwitch(travel.id, true)}
               >
                 <CardContent className="p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
+                      {switching === travel.id && <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />}
                       <span className="font-medium truncate">{travel.name}</span>
                       {isActive && (
                         <Badge variant="default" className="text-xs shrink-0">

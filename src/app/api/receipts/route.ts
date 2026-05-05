@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getTodayRate, calculateTwd } from "@/lib/exchange-rate";
 import { z } from "zod";
@@ -65,5 +66,6 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  revalidateTag("receipts", { expire: 0 });
   return NextResponse.json(receipt, { status: 201 });
 }

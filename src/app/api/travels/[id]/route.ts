@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
@@ -17,6 +18,8 @@ export async function DELETE(
     prisma.receipt.deleteMany({ where: { travel_id: id } }),
     prisma.travel.delete({ where: { id } }),
   ]);
+  revalidateTag("travels", { expire: 0 });
+  revalidateTag("receipts", { expire: 0 });
 
   return NextResponse.json({ ok: true });
 }

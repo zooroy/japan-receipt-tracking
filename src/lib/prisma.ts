@@ -7,7 +7,7 @@ function createPrismaClient() {
   const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL!,
   });
-  return new PrismaClient({ adapter });
+  return new PrismaClient({ adapter, log: process.env.PRISMA_LOG_QUERIES === "1" ? ["query"] : [] });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();

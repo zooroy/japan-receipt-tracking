@@ -1,7 +1,4 @@
-export const dynamic = "force-dynamic";
-
-import { prisma } from "@/lib/prisma";
-import { getTravels } from "@/lib/queries";
+import { getTravels, getReceipts } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -11,7 +8,7 @@ import type { Travel, Receipt } from "@/lib/types";
 export default async function ReceiptsPage() {
   const [rawTravels, rawReceipts] = await Promise.all([
     getTravels(),
-    prisma.receipt.findMany({ where: { travel: { is_active: true } }, orderBy: { date: "desc" } }),
+    getReceipts(),
   ]);
 
   const travels: Travel[] = rawTravels.map((t) => ({
@@ -28,9 +25,9 @@ export default async function ReceiptsPage() {
 
   const receipts: Receipt[] = rawReceipts.map((r) => ({
     ...r,
-    date: r.date.toISOString(),
+    date: new Date(r.date).toISOString(),
     exchange_rate: Number(r.exchange_rate),
-    created_at: r.created_at.toISOString(),
+    created_at: new Date(r.created_at).toISOString(),
   }));
 
   return (
