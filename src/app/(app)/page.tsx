@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { getTravels, getReceipts } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
-import { BottomNav } from "@/components/layout/BottomNav";
 import { SpendingOverview } from "@/components/dashboard/SpendingOverview";
 import { DailyChart, CategoryChart } from "@/components/dashboard/LazyCharts";
 import { TaxTypeSummary } from "@/components/dashboard/TaxTypeSummary";
@@ -40,7 +39,6 @@ export default async function DashboardPage() {
     <div className="flex flex-col min-h-screen">
       <Navbar travelName={activeTravel.name} />
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 pb-24">
-        <Suspense>
           {receipts.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full min-h-[60vh] gap-2 text-muted-foreground">
               <p className="text-lg font-medium text-foreground">還沒有收據</p>
@@ -48,18 +46,18 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <SpendingOverview travelId={activeTravel.id} initialReceipts={receipts} />
-              <DailyChart travelId={activeTravel.id} initialReceipts={receipts} />
+              <Suspense fallback={<div className="grid grid-cols-2 gap-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-20 rounded-lg bg-muted animate-pulse" />)}</div>}>
+                <SpendingOverview initialReceipts={receipts} />
+              </Suspense>
+              <DailyChart initialReceipts={receipts} />
               <div className="grid grid-cols-2 gap-4">
-                <CategoryChart travelId={activeTravel.id} initialReceipts={receipts} />
-                <TaxTypeSummary travelId={activeTravel.id} initialReceipts={receipts} />
+                <CategoryChart initialReceipts={receipts} />
+                <TaxTypeSummary initialReceipts={receipts} />
               </div>
-              <RecentReceipts travelId={activeTravel.id} initialReceipts={receipts} />
+              <RecentReceipts initialReceipts={receipts} />
             </div>
           )}
-        </Suspense>
       </main>
-      <BottomNav />
     </div>
   );
 }

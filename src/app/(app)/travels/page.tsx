@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { getTravels } from "@/lib/queries";
 import { Navbar } from "@/components/layout/Navbar";
-import { BottomNav } from "@/components/layout/BottomNav";
 import { TravelList } from "@/components/travels/TravelList";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Travel } from "@/lib/types";
@@ -58,7 +57,6 @@ export default function TravelsPage({ searchParams }: TravelsPageProps) {
           <TravelPageContent searchParams={searchParams} />
         </Suspense>
       </main>
-      <BottomNav />
     </div>
   );
 }

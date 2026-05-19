@@ -1,7 +1,6 @@
 import { getTravels, getReceipts } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
-import { BottomNav } from "@/components/layout/BottomNav";
 import { ReceiptList } from "@/components/receipts/ReceiptList";
 import type { Travel, Receipt } from "@/lib/types";
 
@@ -36,7 +35,6 @@ export default async function ReceiptsPage() {
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 pb-24">
         <ReceiptList initialReceipts={receipts} />
       </main>
-      <BottomNav />
     </div>
   );
 }
