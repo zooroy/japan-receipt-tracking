@@ -1,9 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getCategoryLabel, getCategoryColor } from "@/lib/categories";
 
 interface Receipt {
@@ -12,21 +10,14 @@ interface Receipt {
 }
 
 interface CategoryChartProps {
-  travelId: string;
   initialReceipts: Receipt[];
 }
 
-export function CategoryChart({ travelId, initialReceipts }: CategoryChartProps) {
-  const { data: receipts, isLoading } = useQuery<Receipt[]>({
-    queryKey: ["receipts", travelId],
-    queryFn: () => fetch(`/api/receipts?travelId=${travelId}`).then((r) => r.json()),
-    initialData: initialReceipts,
-  });
-
+export function CategoryChart({ initialReceipts }: CategoryChartProps) {
   const chartData = (() => {
-    if (!receipts) return [];
+    if (!initialReceipts) return [];
     const byCategory: Record<string, number> = {};
-    for (const r of receipts) {
+    for (const r of initialReceipts) {
       byCategory[r.category] = (byCategory[r.category] ?? 0) + r.total_amount;
     }
     return Object.entries(byCategory)
@@ -44,9 +35,7 @@ export function CategoryChart({ travelId, initialReceipts }: CategoryChartProps)
         <CardTitle className="text-sm font-medium">消費分類（¥）</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <Skeleton className="h-40 w-full" />
-        ) : chartData.length === 0 ? (
+        {chartData.length === 0 ? (
           <p className="text-center text-muted-foreground text-sm py-10">尚無資料</p>
         ) : (
           <ResponsiveContainer width="100%" height={180}>

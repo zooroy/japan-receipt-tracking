@@ -1,9 +1,6 @@
-"use client";
-
-import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Receipt, JapaneseYen, DollarSign, TrendingUp } from "lucide-react";
+import { getExchangeRate } from "@/lib/queries";
 
 interface ReceiptSummary {
   total_amount: number;
@@ -11,45 +8,35 @@ interface ReceiptSummary {
 }
 
 interface SpendingOverviewProps {
-  travelId: string;
   initialReceipts: ReceiptSummary[];
 }
 
-export function SpendingOverview({ travelId, initialReceipts }: SpendingOverviewProps) {
-  const { data: receipts, isLoading: receiptsLoading } = useQuery<ReceiptSummary[]>({
-    queryKey: ["receipts", travelId],
-    queryFn: () => fetch(`/api/receipts?travelId=${travelId}`).then((r) => r.json()),
-    initialData: initialReceipts,
-  });
+export async function SpendingOverview({ initialReceipts }: SpendingOverviewProps) {
+  const rate = await getExchangeRate();
 
-  const { data: rateData, isLoading: rateLoading } = useQuery<{ rate: number }>({
-    queryKey: ["exchange-rate"],
-    queryFn: () => fetch("/api/exchange-rate").then((r) => r.json()),
-  });
-
-  const totalJpy = receipts?.reduce((sum, r) => sum + r.total_amount, 0) ?? 0;
-  const totalTwd = receipts?.reduce((sum, r) => sum + r.total_amount_twd, 0) ?? 0;
-  const count = receipts?.length ?? 0;
+  const totalJpy = initialReceipts.reduce((sum, r) => sum + r.total_amount, 0);
+  const totalTwd = initialReceipts.reduce((sum, r) => sum + r.total_amount_twd, 0);
+  const count = initialReceipts.length;
 
   const cards = [
     {
       title: "總花費（日圓）",
-      value: receiptsLoading ? null : `¥${totalJpy.toLocaleString()}`,
+      value: `¥${totalJpy.toLocaleString()}`,
       icon: JapaneseYen,
     },
     {
       title: "總花費（台幣）",
-      value: receiptsLoading ? null : `NT$${totalTwd.toLocaleString()}`,
+      value: `NT$${totalTwd.toLocaleString()}`,
       icon: DollarSign,
     },
     {
       title: "收據筆數",
-      value: receiptsLoading ? null : `${count} 筆`,
+      value: `${count} 筆`,
       icon: Receipt,
     },
     {
       title: "今日匯率",
-      value: rateLoading ? null : rateData ? `1 JPY = ${rateData.rate.toFixed(4)} TWD` : "—",
+      value: `1 JPY = ${rate.toFixed(4)} TWD`,
       icon: TrendingUp,
     },
   ];
@@ -65,11 +52,7 @@ export function SpendingOverview({ travelId, initialReceipts }: SpendingOverview
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-3 px-4">
-            {card.value === null ? (
-              <Skeleton className="h-6 w-20" />
-            ) : (
-              <p className="text-lg font-semibold leading-tight">{card.value}</p>
-            )}
+            <p className="text-lg font-semibold leading-tight">{card.value}</p>
           </CardContent>
         </Card>
       ))}

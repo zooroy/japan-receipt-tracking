@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
   BarChart,
@@ -12,7 +11,6 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface Receipt {
   date: string;
@@ -25,21 +23,14 @@ interface SpendingEntry {
 }
 
 interface DailyChartProps {
-  travelId: string;
   initialReceipts: Receipt[];
 }
 
-export function DailyChart({ travelId, initialReceipts }: DailyChartProps) {
-  const { data: receipts, isLoading } = useQuery<Receipt[]>({
-    queryKey: ["receipts", travelId],
-    queryFn: () => fetch(`/api/receipts?travelId=${travelId}`).then((r) => r.json()),
-    initialData: initialReceipts,
-  });
-
+export function DailyChart({ initialReceipts }: DailyChartProps) {
   const chartData: SpendingEntry[] = (() => {
-    if (!receipts) return [];
+    if (!initialReceipts) return [];
     const byDate: Record<string, number> = {};
-    for (const r of receipts) {
+    for (const r of initialReceipts) {
       const d = r.date.slice(0, 10);
       byDate[d] = (byDate[d] ?? 0) + r.total_amount;
     }
@@ -57,9 +48,7 @@ export function DailyChart({ travelId, initialReceipts }: DailyChartProps) {
         <CardTitle className="text-sm font-medium">每日消費趨勢（¥）</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <Skeleton className="h-40 w-full" />
-        ) : chartData.length === 0 ? (
+        {chartData.length === 0 ? (
           <p className="text-center text-muted-foreground text-sm py-10">尚無資料</p>
         ) : (
           <ResponsiveContainer width="100%" height={160}>

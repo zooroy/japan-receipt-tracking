@@ -1,8 +1,4 @@
-"use client";
-
-import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface Receipt {
   tax_type: string;
@@ -17,27 +13,17 @@ const TAX_TYPE_LABELS: Record<string, string> = {
 };
 
 interface TaxTypeSummaryProps {
-  travelId: string;
   initialReceipts: Receipt[];
 }
 
-export function TaxTypeSummary({ travelId, initialReceipts }: TaxTypeSummaryProps) {
-  const { data: receipts, isLoading } = useQuery<Receipt[]>({
-    queryKey: ["receipts", travelId],
-    queryFn: () => fetch(`/api/receipts?travelId=${travelId}`).then((r) => r.json()),
-    initialData: initialReceipts,
-  });
-
-  const byTaxType = (() => {
-    if (!receipts) return [];
-    const map: Record<string, number> = {};
-    for (const r of receipts) {
-      map[r.tax_type] = (map[r.tax_type] ?? 0) + r.total_amount;
-    }
-    return Object.entries(map)
-      .sort(([, a], [, b]) => b - a)
-      .map(([type, amount]) => ({ type, amount }));
-  })();
+export function TaxTypeSummary({ initialReceipts }: TaxTypeSummaryProps) {
+  const map: Record<string, number> = {};
+  for (const r of initialReceipts) {
+    map[r.tax_type] = (map[r.tax_type] ?? 0) + r.total_amount;
+  }
+  const byTaxType = Object.entries(map)
+    .sort(([, a], [, b]) => b - a)
+    .map(([type, amount]) => ({ type, amount }));
 
   return (
     <Card>
@@ -45,12 +31,7 @@ export function TaxTypeSummary({ travelId, initialReceipts }: TaxTypeSummaryProp
         <CardTitle className="text-sm font-medium">稅別匯總</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-          </div>
-        ) : byTaxType.length === 0 ? (
+        {byTaxType.length === 0 ? (
           <p className="text-center text-muted-foreground text-xs py-6">尚無資料</p>
         ) : (
           <div className="space-y-2">
